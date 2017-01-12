@@ -1,0 +1,67 @@
+<!-- Default home page -->
+<main class="mdl-layout__content">
+<div data-bind='fadeVisible: displayLoading' class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+  <div class="mdl-layout__tab-panel is-active" id="overview" data-bind="foreach: coupons">
+    <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+      <header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
+        <i class="material-icons">money_off</i>
+      </header>
+      <div class="mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
+        <div class="mdl-card__supporting-text">
+          <h1 data-bind="text: $data.id"></h1>
+          <ul class="mdl-list">
+            <li class="mdl-list__item">
+              <span class="mdl-list__item-primary-content" data-bind="visible: $data.amount_off">Money Off:&nbsp;<span data-bind="text: $data.amount_off"></span><span data-bind="text: $data.currency"></span></span>
+            </li>
+            <li class="mdl-list__item">
+              <span class="mdl-list__item-primary-content" data-bind="visible: $data.percent_off">Percent Off:&nbsp;<span data-bind="text: $data.percent_off"></span>%</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mdl-card__actions">
+          <a href="#" class="mdl-button">Read our features</a>
+        </div>
+      </div>
+      <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" data-bind="click: $parent.delete">
+        <i class="material-icons">delete</i>
+      </button>
+    </section>
+  </div>
+</main>
+
+<script>
+  
+  let viewModel = {
+    coupons: ko.observableArray([]),
+    displayLoading: ko.observable(true),
+    delete: (data) => {
+      fetch(`/coupons/${data.id}`, {
+        method: 'DELETE'
+      }).then(() => {
+        window.location = '/';
+      })
+    }
+  };
+
+  ko.bindingHandlers.fadeVisible = {
+    init: (element, valueAccessor) => {
+      let value = valueAccessor();
+      $(element).toggle(ko.unwrap(value));
+    },
+    update: (element, valueAccessor) => {
+      let value = valueAccessor();
+      ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
+    }
+  };
+
+  ko.applyBindings(viewModel);
+
+  fetch('/coupons')
+    .then(response => {
+      return response.json();
+    })
+    .then(data => {
+      viewModel.coupons(data.coupons)
+      viewModel.displayLoading(false)
+    })
+</script>
