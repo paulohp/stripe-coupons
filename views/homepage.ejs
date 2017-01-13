@@ -1,6 +1,6 @@
 <!-- Default home page -->
 <main class="mdl-layout__content">
-<div data-bind='fadeVisible: displayLoading' class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+  <div data-bind='fadeVisible: displayLoading' class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
   <div class="mdl-layout__tab-panel is-active" id="overview" data-bind="foreach: coupons">
     <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
       <header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
@@ -27,13 +27,53 @@
       </button>
     </section>
   </div>
+
+  <dialog class="mdl-dialog">
+    <h4 class="mdl-dialog__title">Create Coupon</h4>
+    <div class="mdl-dialog__content">
+      <form action="#" data-bind="submit: save">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input name="code" class="mdl-textfield__input" type="text" id="code" />
+          <label class="mdl-textfield__label" for="code">ID (Code)</label>
+        </div>
+
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input name="amount_off" class="mdl-textfield__input" type="text" id="amount" />
+          <label class="mdl-textfield__label" for="amount">Amount Off</label>
+        </div>
+      
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input name="percent_off" class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample4" />
+          <label class="mdl-textfield__label" for="sample4">Percent Off</label>
+          <span class="mdl-textfield__error">Input is not a number!</span>
+        </div>
+
+        <div class="mdl-dialog__actions">
+          <button type="submit" class="mdl-button">Save</button>
+          <button data-bind="click: closeModal" type="button" class="mdl-button close">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 </main>
 
 <script>
+
+  const dialog = document.querySelector('dialog');
+  const showDialogButton = document.querySelector('#show-dialog');
   
   let viewModel = {
     coupons: ko.observableArray([]),
     displayLoading: ko.observable(true),
+    openModal: () => {
+      dialog.showModal();
+    },
+    closeModal: () => {
+      dialog.close();
+    },
+    save: (data) => {
+      console.log( new FormData(data))
+    },
     delete: (data) => {
       fetch(`/coupons/${data.id}`, {
         method: 'DELETE'
@@ -42,6 +82,17 @@
       })
     }
   };
+
+  let init = () => {
+    fetch('/coupons')
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        viewModel.coupons(data.coupons)
+        viewModel.displayLoading(false)
+      })
+  }
 
   ko.bindingHandlers.fadeVisible = {
     init: (element, valueAccessor) => {
@@ -56,12 +107,5 @@
 
   ko.applyBindings(viewModel);
 
-  fetch('/coupons')
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      viewModel.coupons(data.coupons)
-      viewModel.displayLoading(false)
-    })
+  init()
 </script>

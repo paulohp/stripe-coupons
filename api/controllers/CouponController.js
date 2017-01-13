@@ -23,7 +23,7 @@ module.exports = {
   /**
    * `CouponController.delete()`
    */
-  delete: async function (req, res) {
+  delete: function (req, res) {
     stripe.coupons.del(req.params.id)
       .then(() => {
         return res.json({
