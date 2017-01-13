@@ -22,7 +22,8 @@
     "knockout": "^3.4.1",
     "rc": "1.0.1",
     "sails": "~0.12.11",
-    "sails-disk": "~0.10.9"
+    "sails-disk": "~0.10.9",
+    "stripe": "^4.14.0"
   },
   "scripts": {
     "debug": "node debug app.js",
