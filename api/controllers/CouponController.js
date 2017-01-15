@@ -14,8 +14,11 @@ module.exports = {
    * `CouponController.create()`
    */
   create: function (req, res) {
-    return res.json({
-      todo: 'create() is not implemented yet!'
+    stripe.coupons.create(req.body, (err, coupon) => {
+      if(err) return res.status(500).send(err)
+      return res.json({
+       coupon
+      });
     });
   },
 
@@ -27,7 +30,7 @@ module.exports = {
     stripe.coupons.del(req.params.id)
       .then(() => {
         return res.json({
-          todo: 'delete() is not implemented yet!'
+          message: 'Successfully Deleted!'
         });
     })
   },
@@ -38,7 +41,7 @@ module.exports = {
    */
   list: function (req, res) {
     stripe.coupons.list(
-      {},
+      {limit: 100},
       function(err, coupons) {
         return res.json({
           coupons: coupons.data

@@ -1,6 +1,7 @@
 <!-- Default home page -->
 <main class="mdl-layout__content">
   <div data-bind='fadeVisible: displayLoading' class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+  
   <div class="mdl-layout__tab-panel is-active" id="overview" data-bind="foreach: coupons">
     <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
       <header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
@@ -11,15 +12,12 @@
           <h1 data-bind="text: $data.id"></h1>
           <ul class="mdl-list">
             <li class="mdl-list__item">
-              <span class="mdl-list__item-primary-content" data-bind="visible: $data.amount_off">Money Off:&nbsp;<span data-bind="text: $data.amount_off"></span><span data-bind="text: $data.currency"></span></span>
+              <span class="mdl-list__item-primary-content" data-bind="if: $data.amount_off">$<span data-bind="text: $data.amount_off"></span></span>
             </li>
             <li class="mdl-list__item">
-              <span class="mdl-list__item-primary-content" data-bind="visible: $data.percent_off">Percent Off:&nbsp;<span data-bind="text: $data.percent_off"></span>%</span>
+              <span class="mdl-list__item-primary-content" data-bind="if: $data.percent_off"><span data-bind="text: $data.percent_off"></span>%&nbsp;off&nbsp;<span data-bind="text: $data.duration"></span>&nbsp;<span data-bind="text: $data.duration_in_months"></span><span data-bind="if: $data.duration_in_months">&nbsp;months</span></span>
             </li>
           </ul>
-        </div>
-        <div class="mdl-card__actions">
-          <a href="#" class="mdl-button">Read our features</a>
         </div>
       </div>
       <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" data-bind="click: $parent.delete">
@@ -31,21 +29,32 @@
   <dialog class="mdl-dialog">
     <h4 class="mdl-dialog__title">Create Coupon</h4>
     <div class="mdl-dialog__content">
-      <form action="#" data-bind="submit: save">
+      <form id="save" action="#" data-bind="submit: save">
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input name="code" class="mdl-textfield__input" type="text" id="code" />
-          <label class="mdl-textfield__label" for="code">ID (Code)</label>
+          <input name="id" class="mdl-textfield__input" type="text" id="id" />
+          <label class="mdl-textfield__label" for="id">ID (Code)</label>
         </div>
 
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input name="amount_off" class="mdl-textfield__input" type="text" id="amount" />
+          <input name="amount_off" value="0" class="mdl-textfield__input" type="text" id="amount"  pattern="-?[0-9]*(\.[0-9]+)?" />
           <label class="mdl-textfield__label" for="amount">Amount Off</label>
+          <span class="mdl-textfield__error">Input is not a number!</span>
+        </div>
+
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input name="currency" value="USD" class="mdl-textfield__input" type="text" id="currency" />
+          <label class="mdl-textfield__label" for="currency">Currency (USD, EUR, BRL)</label>
         </div>
       
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input name="percent_off" class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample4" />
-          <label class="mdl-textfield__label" for="sample4">Percent Off</label>
-          <span class="mdl-textfield__error">Input is not a number!</span>
+          <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
+            <input required type="radio" id="option-1" class="mdl-radio__button" name="duration" value="once">
+            <span class="mdl-radio__label">Once</span>
+          </label>
+          <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
+            <input required type="radio" id="option-2" class="mdl-radio__button" name="duration" value="forever">
+            <span class="mdl-radio__label">Forever</span>
+          </label>          
         </div>
 
         <div class="mdl-dialog__actions">
@@ -55,57 +64,8 @@
       </form>
     </div>
   </dialog>
+  <div id="toast" class="mdl-js-snackbar mdl-snackbar">
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+  </div>
 </main>
-
-<script>
-
-  const dialog = document.querySelector('dialog');
-  const showDialogButton = document.querySelector('#show-dialog');
-  
-  let viewModel = {
-    coupons: ko.observableArray([]),
-    displayLoading: ko.observable(true),
-    openModal: () => {
-      dialog.showModal();
-    },
-    closeModal: () => {
-      dialog.close();
-    },
-    save: (data) => {
-      console.log( new FormData(data))
-    },
-    delete: (data) => {
-      fetch(`/coupons/${data.id}`, {
-        method: 'DELETE'
-      }).then(() => {
-        window.location = '/';
-      })
-    }
-  };
-
-  let init = () => {
-    fetch('/coupons')
-      .then(response => {
-        return response.json();
-      })
-      .then(data => {
-        viewModel.coupons(data.coupons)
-        viewModel.displayLoading(false)
-      })
-  }
-
-  ko.bindingHandlers.fadeVisible = {
-    init: (element, valueAccessor) => {
-      let value = valueAccessor();
-      $(element).toggle(ko.unwrap(value));
-    },
-    update: (element, valueAccessor) => {
-      let value = valueAccessor();
-      ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
-    }
-  };
-
-  ko.applyBindings(viewModel);
-
-  init()
-</script>

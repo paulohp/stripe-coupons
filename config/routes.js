@@ -35,10 +35,9 @@ module.exports.routes = {
   '/': {
     view: 'homepage'
   },
-
   'get /coupons': 'CouponController.list',
-
   'delete /coupons/:id': 'CouponController.delete',
+  'post /coupons': 'CouponController.create',
 
   /***************************************************************************
   *                                                                          *
