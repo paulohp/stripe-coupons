@@ -76,7 +76,7 @@ body {
   flex-grow: 1;
   padding: 0;
   color: inherit;
-  width: calc(20%);
+  width: calc(80%);
 }
 .mdl-stripe.mdl-stripe .mdl-card__supporting-text h4 {
   margin-top: 0;
